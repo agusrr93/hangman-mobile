@@ -25,7 +25,6 @@ export default class CardImageExample extends Component {
   }
   
   componentWillMount(){
-    alert(this.props.status)
     if(this.props.status==='player1'){
         db.ref('/room/'+this.props.kode).update({
           player1:{

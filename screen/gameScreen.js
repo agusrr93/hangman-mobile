@@ -16,6 +16,7 @@ class GameScreen extends React.Component {
       "wrong":0,
       "usedLetters":[],
       "lettersLeft":[],
+      "collection":[],
       "input":"",
       "score1":0,
       "score2":0,
@@ -35,7 +36,6 @@ class GameScreen extends React.Component {
       status:status
     },function(){
           this.getQuestionFromApiAsync()
-          this.init();
           if(this.state.status==='player1'){
             db.ref('/room/'+this.props.rid).update({
                 player1:{
@@ -68,7 +68,21 @@ class GameScreen extends React.Component {
   getQuestionFromApiAsync() {
       axios.get("https://opentdb.com/api.php?amount=10&category=11&difficulty=easy&type=multiple")
         .then(response =>  {
-            // console.log(response, 'ini respon');
+            
+            let result=[]
+            for(let i=0;i<response.data.results.length;i++){
+               let obj={}
+               obj.hint=response.data.results[i].question
+               obj.answer=response.data.results[i].correct_answer
+
+               result.push(obj)
+            }
+
+            this.setState({
+                collection:result
+            },function(){
+               this.init();
+            })
         })
         .catch(error =>  {
             console.log(error, 'ini error');
@@ -79,8 +93,7 @@ class GameScreen extends React.Component {
     title: 'Back',
   };
   init(){
-    let collection=[{hint:'siapa penemu bola lampu',answer:'Faraday'},{hint:'siapa presiden indonesia',answer:'Joko Widodo'},{hint:'siapa penemu bola lampu',answer:'Faraday'},{hint:'siapa presiden indonesia',answer:'Joko Widodo'},{hint:'siapa penemu bola lampu',answer:'Faraday'},{hint:'siapa presiden indonesia',answer:'Joko Widodo'},{hint:'siapa penemu bola lampu',answer:'Faraday'},{hint:'siapa presiden indonesia',answer:'Joko Widodo'},{hint:'siapa penemu bola lampu',answer:'Faraday'},{hint:'siapa presiden indonesia',answer:'Joko Widodo'},{hint:'siapa penemu bola lampu',answer:'Faraday'},{hint:'siapa presiden indonesia',answer:'Joko Widodo'}]
-    let puzzle = collection[this.state.stage];
+    let puzzle = this.state.collection[this.state.stage];
     let answer = puzzle.answer.replace(/[^a-zA-Z]/gmi, " ").trim();
     console.log('ini answer',answer)
     let hint = puzzle.hint;
