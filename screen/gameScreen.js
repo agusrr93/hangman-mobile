@@ -3,8 +3,6 @@ import React from 'react';
 import { StyleSheet, Text, TextInput, View, Button, TouchableHighlight, Alert } from 'react-native';
 
 import { db } from '../src/config';
-import axios from 'axios'
-
 
 class GameScreen extends React.Component {
   constructor(props){
@@ -66,27 +64,13 @@ class GameScreen extends React.Component {
   }
 
   getQuestionFromApiAsync() {
-      axios.get("https://opentdb.com/api.php?amount=10&category=11&difficulty=easy&type=multiple")
-        .then(response =>  {
-            
-            let result=[]
-            for(let i=0;i<response.data.results.length;i++){
-               let obj={}
-               obj.hint=response.data.results[i].question
-               obj.answer=response.data.results[i].correct_answer
-
-               result.push(obj)
-            }
-
+      db.ref('/room/' + this.props.rid).once('value').then((snapshot)=>{
             this.setState({
-                collection:result
+                collection:JSON.parse(snapshot.val().question)
             },function(){
                this.init();
             })
-        })
-        .catch(error =>  {
-            console.log(error, 'ini error');
-        });
+      });
   }
 
   static navigationOptions = {
@@ -95,7 +79,6 @@ class GameScreen extends React.Component {
   init(){
     let puzzle = this.state.collection[this.state.stage];
     let answer = puzzle.answer.replace(/[^a-zA-Z]/gmi, " ").trim();
-    console.log('ini answer',answer)
     let hint = puzzle.hint;
     let lettersLeft = Array(answer.length);
     for(let index=0;index<answer.length;index++){
@@ -201,8 +184,6 @@ class GameScreen extends React.Component {
         });
   }
   render(){
-    console.log(this.props,"ini props")
-    
     return(
     
       <View style={styles.container}>

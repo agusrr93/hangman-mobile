@@ -4,6 +4,7 @@ import {
     Text,StyleSheet,ImageBackground,View,TextInput,TouchableHighlight
 } from 'react-native';
 
+import axios from 'axios'
 import Card from './Card'
 import Avalaible from './AvailableRoom'
 
@@ -43,9 +44,31 @@ export default class AddRoom extends Component {
     this.setState({
         koderoom:newRoomKey,
         isLoading:true
+    },function(){  
+            axios.get("https://opentdb.com/api.php?amount=10&category=11&difficulty=easy&type=multiple")
+              .then(response =>  {
+                  
+                  let result=[]
+                  for(let i=0;i<response.data.results.length;i++){
+                    let obj={}
+                    obj.hint=response.data.results[i].question
+                    obj.answer=response.data.results[i].correct_answer
+      
+                    result.push(obj)
+                  }
+                  
+                  db.ref('/room/'+newRoomKey).update({
+                     question:JSON.stringify(result)
+                  },function(){
+                  });
+              })
+              .catch(error =>  {
+                  console.log(error, 'ini error');
+              });
     })
 
   };
+
 
   handleBack = ()=>{
     this.setState({
